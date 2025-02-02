@@ -59,22 +59,35 @@ def solve_pressure_poisson(dx, dy, u, v):
     positions = [0, 1, -1, nx, -nx]
     A = diags(diagonals, positions, shape=(N, N), format='csr')
 
-    # Boundary conditions by adding ghost cells
+    # Apply Bernoulli boundary condition at the sides (left, right, top, and bottom boundaries)
+    
     # Left boundary (x = 0)
-    bernoulli_left = 0.5 * (u[:, 0] ** 2 + v[:, 0] ** 2)
+    bernoulli_left = 0.5 * (u[:, 0] ** 2 + v[:, 0] ** 2)  
     b[0, :] = bernoulli_left  # Apply Bernoulli on left boundary (row 0)
-
+    # Set A matrix for left boundary (directly known pressure)
+    A[0, :] = 0  # Set all elements in the row to 0
+    A[0, 0] = 1  # Set the diagonal to 1 (pressure is directly known)
+    
     # Right boundary (x = nx-1)
-    bernoulli_right = 0.5 * (u[:, -1] ** 2 + v[:, -1] ** 2)
+    bernoulli_right = 0.5 * (u[:, -1] ** 2 + v[:, -1] ** 2)  
     b[-1, :] = bernoulli_right  # Apply Bernoulli on right boundary (row -1)
-
+    # Set A matrix for right boundary (directly known pressure)
+    A[-1, :] = 0  # Set all elements in the row to 0
+    A[-1, -1] = 1  # Set the diagonal to 1 (pressure is directly known)
+    
     # Top boundary (y = 0)
-    bernoulli_top = 0.5 * (u[0, :] ** 2 + v[0, :] ** 2)
+    bernoulli_top = 0.5 * (u[0, :] ** 2 + v[0, :] ** 2)  
     b[:, 0] = bernoulli_top  # Apply Bernoulli on top boundary (column 0)
-
+    # Set A matrix for top boundary (directly known pressure)
+    A[:, 0] = 0  # Set all elements in the column to 0
+    A[0, 0] = 1  # Set the diagonal to 1 (pressure is directly known)
+    
     # Bottom boundary (y = ny-1)
-    bernoulli_bottom = 0.5 * (u[-1, :] ** 2 + v[-1, :] ** 2)
+    bernoulli_bottom = 0.5 * (u[-1, :] ** 2 + v[-1, :] ** 2)  
     b[:, -1] = bernoulli_bottom  # Apply Bernoulli on bottom boundary (column -1)
+    # Set A matrix for bottom boundary (directly known pressure)
+    A[:, -1] = 0  # Set all elements in the column to 0
+    A[-1, -1] = 1  # Set the diagonal to 1 (pressure is directly known)
 
     # Solve for P
     P = spsolve(A, b.ravel())
